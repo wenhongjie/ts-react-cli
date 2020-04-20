@@ -1,5 +1,5 @@
 {
-  "name": "react",
+  "name": "ts-react",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -7,14 +7,14 @@
     "antd": "^4.1.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-router-dom": "^5.1.2",
-    "ts-react-cli": "^0.0.1-beta.8"
+    "react-router-dom": "^5.1.2"
   },
   "scripts": {
-    "dev": "dawn dev",
-    "build": "dawn build"
+    "dev": "ts-react-cli dev",
+    "build": "ts-react-cli build"
   },
   "devDependencies": {
-    "@types/react-dom": "^16.9.6"
+    "@types/react-dom": "^16.9.6",
+    "ts-react-cli": "^1.0.0"
   }
 }

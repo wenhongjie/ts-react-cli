@@ -9,7 +9,8 @@ async function start() {
   const config = await promiseConfig
   const serverConfig = config.devServer
   const compiler = webpack(config)
-  const devServer = new WebpackDevServer(compiler, serverConfig)
+  const devServer = new WebpackDevServer(compiler, { ...serverConfig, noInfo: true })
+  console.log(config, serverConfig)
   const { port = 3000, host } = serverConfig
   devServer.listen(port, host)
 }
