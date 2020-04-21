@@ -1,12 +1,14 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const fs = require('fs')
-const { DefinePlugin, HotModuleReplacementPlugin } = require('webpack')
-const { APP_PATH, CUSTOM_CONFIG_PATH, PUBLIC_PATH, PACKAGE_FILE_PATH } = require('./helper')
+const webpack = require('webpack')
+const { PUBLIC_URL, APP_PATH, CUSTOM_CONFIG_PATH, PUBLIC_PATH, PACKAGE_FILE_PATH, SRC_PATH } = require('./helper')
 const webpackMerge = require('webpack-merge')
 const devConfig = require('./webpack.dev')
 const prodConfig = require('./webpack.prod')
 const packageJSON = require(PACKAGE_FILE_PATH)
-const WebpackProgressBar = require('webpack-progress-bar')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const path = require('path')
+
 // 当前进程的工作目录
 const { NODE_ENV } = process.env
 const isDev = NODE_ENV === 'development'
@@ -16,11 +18,15 @@ const isProd = NODE_ENV === 'production'
 const config = {
   mode: NODE_ENV,
 
-  entry: `${APP_PATH}/src/main.tsx`,
+  entry: [
+    'react-hot-loader/patch',
+    path.join(SRC_PATH, 'main.tsx')
+  ],
 
   output: {
     // TODO 在 webpack5版本 移除
-    futureEmitAssets: true
+    futureEmitAssets: true,
+    publicPath: PUBLIC_URL
   },
 
   module: {
@@ -33,16 +39,14 @@ const config = {
             options: {
               limit: 2048,
               name: 'assets/images/[name].[hash:8].[ext]',
-            },
-            include: `${APP_PATH}/src`
+            }
           },
           {
             test: /\.(woff|woff2|eot|ttf|otf)$/,
             loader: require.resolve('url-loader'),
             options: {
               name: 'assets/fonts/[name]_[hash:2].[ext]'
-            },
-            include: `${APP_PATH}/src`
+            }
           },
           {
             test: /\.(tsx?|jsx?)$/,
@@ -67,23 +71,22 @@ const config = {
                     libraryDirectory: 'es',
                     style: 'css'
                   }
-                ]
+                ],
+                'react-hot-loader/babel'
               ]
             },
-            // include: `${APP_PATH}/src`
+            include: SRC_PATH
           },
           {
             test: /\.scss$/,
             use: [
+              isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
               {
-                loader: isDev ? 'style-loader' : MiniCssExtractPlugin.loader
-              },
-              {
-                loader: 'css-loader',
+                loader: require.resolve('css-loader'),
                 options: {
                   modules: {
                     mode: (path) => {
-                      if (/\.global.css$/i.test(path)) {
+                      if (/\.global\.scss$/i.test(path)) {
                         return 'global'
                       }
                       return 'local'
@@ -92,11 +95,28 @@ const config = {
                   }
                 }
               },
+              'sass-loader'
+            ]
+          },
+          {
+            test: /\.css$/,
+            use: [
+              isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
               {
-                loader: 'sass-loader'
+                loader: require.resolve('css-loader'),
+                options: {
+                  modules: {
+                    mode: (path) => {
+                      if (/\.global\.css$/i.test(path)) {
+                        return 'global'
+                      }
+                      return 'local'
+                    },
+                    localIdentName: '[name].[hash:base64:5]'
+                  }
+                }
               }
-            ],
-            include: `${APP_PATH}/src`
+            ]
           }
         ]
       }
@@ -104,7 +124,7 @@ const config = {
   },
 
   plugins: [
-    new DefinePlugin({
+    new webpack.DefinePlugin({
       VERSION: JSON.stringify(packageJSON.VERSION),
       ENV: JSON.stringify(NODE_ENV),
       NODE_ENV: JSON.stringify(NODE_ENV)
@@ -112,30 +132,23 @@ const config = {
 
     new HtmlWebpackPlugin({
       inject: true,
-      template: `${PUBLIC_PATH}/index.html`
-    }),
-
-    new WebpackProgressBar({
-      complete: {
-        bg: 'cyan'
-      }
-    }),
-
-    new HotModuleReplacementPlugin()
+      template: path.join(PUBLIC_PATH, 'index.html'),
+      hash: isDev ? false : true
+    })
   ],
 
   resolve: {
     alias: {
-      '@': `${APP_PATH}/src`
+      '@': SRC_PATH
     },
     extensions: ['.tsx', '.ts', '.js']
   },
 
-  watchOptions: {
-    ignored: /node_modules/,
-    aggregateTimeout: 800,
-    poll: 10
-  }
+  // watchOptions: {
+  //   ignored: /node_modules/,
+  //   aggregateTimeout: 800,
+  //   poll: 10
+  // }
 }
 
 // 开发配置

@@ -3,6 +3,8 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const { BUILD_PATH } = require('./helper')
 
 module.exports = {
+  // Stop compilation early in production
+  bail: true,
   optimization: {
     minimize: true,
     splitChunks: {
@@ -14,8 +16,7 @@ module.exports = {
   output: {
     path: BUILD_PATH,
     filename: 'js/[name].[contenthash:8].js',
-    chunkFilename: 'js/[name].[contenthash:8].chunk.js',
-    publicPath: '/'
+    chunkFilename: 'js/[name].[contenthash:8].chunk.js'
   },
 
   plugins: [
@@ -24,5 +25,11 @@ module.exports = {
       chunkFilename: 'assets/css/[name].[contenthash:8].chunk.css',
     }),
     new CleanWebpackPlugin()
-  ]
+  ],
+
+  stats: {
+    all: false,
+    colors: true,
+    errors: true
+  }
 }

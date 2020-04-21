@@ -14,7 +14,6 @@
     "build": "ts-react-cli build"
   },
   "devDependencies": {
-    "@types/react-dom": "^16.9.6",
     "ts-react-cli": "^1.0.0"
   }
 }

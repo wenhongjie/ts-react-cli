@@ -2,7 +2,6 @@
 
 const yargs = require('yargs')
 const shell = require('shelljs')
-const path = require('path')
 const argv = yargs
   .command('dev', '开发构建', yargs => {
     if (!shell.which('node')) {

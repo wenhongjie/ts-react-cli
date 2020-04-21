@@ -1,4 +1,5 @@
 'use strict'
+
 process.env.ENV = process.env.NODE_ENV = 'development'
 
 const promiseConfig = require('../config/webpack.config')
@@ -10,8 +11,7 @@ async function start() {
   const serverConfig = config.devServer
   const compiler = webpack(config)
   const devServer = new WebpackDevServer(compiler, { ...serverConfig, noInfo: true })
-  console.log(config, serverConfig)
-  const { port = 3000, host } = serverConfig
+  const { port, host } = serverConfig
   devServer.listen(port, host)
 }
 start()

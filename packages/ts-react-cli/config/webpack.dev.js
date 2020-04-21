@@ -1,14 +1,21 @@
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
-const getPort = require('get-port');
-const { HOST } = require('./helper')
+const portFinder = require('portfinder')
+const { HOST, PUBLIC_URL } = require('./helper')
 const { v4 } = require('internal-ip')
-const IP_V4 = v4.sync()
-const { PACKAGE_FILE_PATH } = require('./helper')
+const WebpackProgressBar = require('webpack-progress-bar')
+const { PACKAGE_FILE_PATH, PUBLIC_PATH } = require('./helper')
 const packageJSON = require(PACKAGE_FILE_PATH)
+const webpack = require('webpack')
+const IP_V4 = v4.sync()
 require('colors')
 
-module.exports = getPort({port: getPort.makeRange(3000, 3100)}).then(port => ({
+module.exports = portFinder.getPortPromise({
+  port: 3000,
+  stopPort: 9999
+}).then(port => ({
   mode: 'development',
+
+  devtool: 'cheap-module-source-map',
 
   output: {
     filename: 'js/bundle.js',
@@ -18,10 +25,14 @@ module.exports = getPort({port: getPort.makeRange(3000, 3100)}).then(port => ({
   devServer: {
     compress: true,
     overlay: true,
+    // hotOnly: true,
     clientLogLevel: 'none',
-    watchContentBase: true,
+    watchContentBase: true, // 如果指定的contentBase目录中的文件发生改变则刷新整个页面
+    contentBase: PUBLIC_PATH, // 指定静态内容的目录
+    contentBasePublicPath: PUBLIC_URL,
+    publicPath: PUBLIC_URL.slice(0, -1),
     hot: true,
-    // quiet: true,
+    inline: true,
     port,
     host: HOST,
     stats: {
@@ -29,10 +40,21 @@ module.exports = getPort({port: getPort.makeRange(3000, 3100)}).then(port => ({
       colors: true,
       errors: true
     },
-    historyApiFallback: true
+    historyApiFallback: {
+      disableDotRule: true,
+      index: PUBLIC_URL,
+    }
   },
 
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+
+    new WebpackProgressBar({
+      complete: {
+        bg: 'cyan'
+      }
+    }),
+    
     new FriendlyErrorsWebpackPlugin({
       compilationSuccessInfo: {
         messages: [

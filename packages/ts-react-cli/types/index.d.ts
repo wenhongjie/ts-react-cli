@@ -2,10 +2,13 @@
 /// <reference types="react-dom" />
 /// <reference types="react-router-dom" />
 
+/** 当前应用的版本号 */
 declare const VERSION: string;
 
+/** 当前应用运行环境 */
 declare const ENV: 'development' | 'production'
 
+/** 当前应用运行环境 等同于 ENV */
 declare const NODE_ENV: 'development' | 'production'
 
 declare module '*.bmp' {
@@ -49,13 +52,23 @@ declare module '*.svg' {
   export default src;
 }
 
-declare module '*.module.css' {
+declare module '*.css' {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
 
-declare module '*.module.scss' {
+declare module '*.global.css' {
+  const src: string;
+  export default src;
+}
+
+declare module '*.scss' {
   const classes: { readonly [key: string]: string };
   export default classes;
+}
+
+declare module '*.global.scss' {
+  const src: string;
+  export default src;
 }
 

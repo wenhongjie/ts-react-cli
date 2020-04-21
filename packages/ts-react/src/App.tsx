@@ -1,10 +1,10 @@
 import React from 'react'
-import './App.scss'
+// import './App.global.scss'
+import classes from './App.css'
 export default function App() {
-
   return (
-    <div className="app">
-      1233
+    <div className={classes.app}>
+      123
     </div>
   )
 }
